@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,20 +10,511 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Core User Model - Shared across all modules
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String    @id @default(cuid())
+  email         String    @unique
+  username      String    @unique
+  password      String
+  name          String?
+  avatar        String?
+  bio           String?
+  location      String?
+  website       String?
+  role          String    @default("user") // user, admin, vendor, moderator
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  posts         Post[]
+  comments      Comment[]
+  products      Product[]
+  cartItems     CartItem[]
+  orders        Order[]
+  photos        Photo[]
+  albums        Album[]
+  photoComments PhotoComment[]
+  enrollments   Enrollment[]
+  quizResults   QuizResult[]
+  achievements  UserAchievement[]
+  gameScores    GameScore[]
+  gameSubmissions GameSubmission[]
+  datingProfile  DatingProfile?
+  matches       Match[]       @relation("MatchUser1")
+  matches2      Match[]       @relation("MatchUser2")
+  messages      Message[]
+  listings      Listing[]
+  listingComments ListingComment[]
+  notifications Notification[]
 }
 
+// Blog Module
 model Post {
+  id          String     @id @default(cuid())
+  title       String
+  slug        String     @unique
+  content     String
+  excerpt     String?
+  featuredImage String?
+  published   Boolean    @default(false)
+  viewCount   Int        @default(0)
+  authorId    String
+  categoryId  String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  author      User       @relation(fields: [authorId], references: [id])
+  category    Category?  @relation(fields: [categoryId], references: [id])
+  tags        PostTag[]
+  comments    Comment[]
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  
+  posts       Post[]
+}
+
+model Tag {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  createdAt   DateTime @default(now())
+  
+  posts       PostTag[]
+}
+
+model PostTag {
+  postId String
+  tagId  String
+  
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  
+  @@id([postId, tagId])
+}
+
+model Comment {
   id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
+  content   String
+  postId    String
   authorId  String
+  parentId  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id])
+  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+}
+
+// Multi-Tenant Store Module
+model Vendor {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  logo        String?
+  banner      String?
+  ownerId     String
+  verified    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  products    Product[]
+  orders      Order[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  price       Float
+  salePrice   Float?
+  images      String   // JSON array of image URLs
+  category    String
+  stock       Int      @default(0)
+  sku         String?
+  vendorId    String
+  sellerId    String
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  vendor      Vendor   @relation(fields: [vendorId], references: [id])
+  seller      User     @relation(fields: [sellerId], references: [id])
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  orderNumber   String      @unique
+  userId        String
+  vendorId      String?
+  status        String      @default("pending") // pending, processing, shipped, delivered, cancelled
+  total         Float
+  subtotal      Float
+  tax           Float
+  shipping      Float
+  paymentMethod String?
+  paymentStatus String      @default("unpaid")
+  shippingAddress String?
+  billingAddress  String?
+  notes        String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  
+  user         User        @relation(fields: [userId], references: [id])
+  vendor       Vendor?     @relation(fields: [vendorId], references: [id])
+  items        OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
+  
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+// Picture Upload Module
+model Album {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  coverImage  String?
+  userId      String
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User     @relation(fields: [userId], references: [id])
+  photos      Photo[]
+}
+
+model Photo {
+  id          String   @id @default(cuid())
+  title       String?
+  description String?
+  url         String
+  thumbnail   String?
+  albumId     String?
+  userId      String
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id])
+  album       Album?   @relation(fields: [albumId], references: [id], onDelete: SetNull)
+  comments    PhotoComment[]
+  likes       PhotoLike[]
+}
+
+model PhotoComment {
+  id        String   @id @default(cuid())
+  content   String
+  photoId   String
+  authorId  String
+  createdAt DateTime @default(now())
+  
+  photo     Photo    @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id])
+}
+
+model PhotoLike {
+  id        String @id @default(cuid())
+  photoId   String
+  userId    String
+  
+  photo     Photo  @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  
+  @@unique([photoId, userId])
+}
+
+// School/Education Module
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  thumbnail   String?
+  instructor  String
+  category    String
+  level       String   @default("beginner") // beginner, intermediate, advanced
+  duration    Int      // in minutes
+  price       Float    @default(0)
+  published   Boolean  @default(false)
+  enrollmentCount Int  @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  lessons     Lesson[]
+  quizzes     Quiz[]
+  enrollments Enrollment[]
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String
+  videoUrl    String?
+  duration    Int      // in minutes
+  order       Int      @default(0)
+  courseId    String
+  createdAt   DateTime @default(now())
+  
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model Quiz {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  courseId    String
+  passingScore Int    @default(70)
+  timeLimit   Int?    // in minutes
+  createdAt   DateTime @default(now())
+  
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  questions   QuizQuestion[]
+  results     QuizResult[]
+}
+
+model QuizQuestion {
+  id          String   @id @default(cuid())
+  question    String
+  options     String   // JSON array
+  correctAnswer Int
+  quizId      String
+  order       Int      @default(0)
+  
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+}
+
+model Enrollment {
+  id          String   @id @default(cuid())
+  userId      String
+  courseId    String
+  progress    Float    @default(0)
+  completed   Boolean  @default(false)
+  enrolledAt  DateTime @default(now())
+  completedAt DateTime?
+  
+  user        User     @relation(fields: [userId], references: [id])
+  course      Course   @relation(fields: [courseId], references: [id])
+  
+  @@unique([userId, courseId])
+}
+
+model QuizResult {
+  id          String   @id @default(cuid())
+  userId      String
+  quizId      String
+  score       Float
+  passed      Boolean
+  answers     String   // JSON
+  completedAt DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id])
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+}
+
+// Game Module
+model Game {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  thumbnail   String?
+  category    String
+  difficulty  String   @default("medium")
+  maxPlayers  Int      @default(1)
+  rating      Float    @default(0)
+  playCount   Int      @default(0)
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  scores      GameScore[]
+  achievements Achievement[]
+  submissions GameSubmission[]
+}
+
+model GameScore {
+  id        String   @id @default(cuid())
+  userId    String
+  gameId    String
+  score     Int
+  level     Int?
+  duration  Int?     // in seconds
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id])
+  game      Game     @relation(fields: [gameId], references: [id])
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  icon        String?
+  points      Int      @default(0)
+  gameId      String
+  createdAt   DateTime @default(now())
+  
+  game        Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  users       UserAchievement[]
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt   DateTime @default(now())
+  
+  user          User         @relation(fields: [userId], references: [id])
+  achievement   Achievement  @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, achievementId])
+}
+
+model GameSubmission {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  url         String?
+  status      String   @default("pending") // pending, approved, rejected
+  submittedBy String
+  gameId      String?
+  createdAt   DateTime @default(now())
+  
+  submitter   User     @relation(fields: [submittedBy], references: [id])
+  game        Game?    @relation(fields: [gameId], references: [id])
+}
+
+// Dating Module
+model DatingProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  headline      String?
+  about         String?
+  interests     String   // JSON array
+  lookingFor    String?
+  age           Int?
+  gender        String?
+  orientation   String?
+  height        String?
+  bodyType      String?
+  education     String?
+  occupation    String?
+  location      String?
+  photos        String   // JSON array
+  verified      Boolean  @default(false)
+  lastActive    DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  user          User     @relation(fields: [userId], references: [id])
+}
+
+model Match {
+  id          String   @id @default(cuid())
+  user1Id     String
+  user2Id     String
+  matchedAt   DateTime @default(now())
+  status      String   @default("active") // active, unmatched, blocked
+  
+  user1       User     @relation("MatchUser1", fields: [user1Id], references: [id])
+  user2       User     @relation("MatchUser2", fields: [user2Id], references: [id])
+  messages    Message[]
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  matchId     String
+  senderId    String
+  content     String
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  
+  match       Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  sender      User     @relation(fields: [senderId], references: [id])
+}
+
+// Classifieds Module
+model Listing {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  price       Float
+  category    String
+  condition   String   @default("used") // new, used, refurbished
+  location    String?
+  images      String   // JSON array
+  contactEmail String?
+  contactPhone String?
+  authorId    String
+  status      String   @default("active") // active, sold, expired, removed
+  expiresAt   DateTime?
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  author      User     @relation(fields: [authorId], references: [id])
+  comments    ListingComment[]
+}
+
+model ListingCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  parentId    String?
+  createdAt   DateTime @default(now())
+}
+
+model ListingComment {
+  id        String   @id @default(cuid())
+  content   String
+  listingId String
+  authorId  String
+  createdAt DateTime @default(now())
+  
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id])
+}
+
+// Notifications
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String   // comment, like, match, message, order, etc.
+  title       String
+  content     String?
+  link        String?
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -1,0 +1,40 @@
+<?php
+// Database configuration - LEGACY FILE
+// TODO: Migrate to new system
+
+define('DB_HOST', 'localhost');
+define('DB_USER', 'root');
+define('DB_PASS', 'r00tp@ssw0rd123');
+define('DB_NAME', 'cysecbook_legacy');
+
+// Old API keys - still active
+$api_key = 'legacy_api_key_12345abcdef';
+$secret = 'super_secret_key_do_not_share';
+
+// Admin backdoor - REMOVE BEFORE PRODUCTION
+$admin_override = array(
+    'username' => 'superadmin',
+    'password' => 'Sup3rAdm1n!@#$',
+    'token' => 'backdoor_token_xyz789'
+);
+
+// Debug mode
+$debug = true;
+$error_reporting = E_ALL;
+
+// Connection
+$conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// Legacy user authentication
+function authenticateUser($username, $password) {
+    global $conn;
+    // VULNERABLE: Direct SQL injection possible
+    $query = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
+    $result = mysqli_query($conn, $query);
+    return mysqli_fetch_assoc($result);
+}
+?>

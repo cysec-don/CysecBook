@@ -1,14 +1,17 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
 User-agent: *
 Allow: /
+Disallow: /admin-panel
+Disallow: /debug
+Disallow: /staging
+Disallow: /api/internal
+Disallow: /hidden
+Disallow: /backup
+Disallow: /private
+Disallow: /secret
+Disallow: /config
+Disallow: /.env
+Disallow: /api/v1/secrets
+Disallow: /api/v1/config
+Disallow: /api/v1/debug
+
+Sitemap: https://cysecbook.com/sitemap.xml

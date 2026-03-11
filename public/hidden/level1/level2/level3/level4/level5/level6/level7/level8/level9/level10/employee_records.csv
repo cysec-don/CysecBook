@@ -1,0 +1,15 @@
+# Employee Database Export
+# Generated: 2024-01-15 03:42:18 UTC
+# Classification: CONFIDENTIAL
+
+id,employee_id,first_name,last_name,email,department,salary,ssn,hire_date,password_hash
+1,EMP001,John,Smith,john.smith@cysecbook.com,Engineering,125000,123-45-6789,2019-03-15,$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+2,EMP002,Sarah,Johnson,sarah.johnson@cysecbook.com,Security,145000,234-56-7890,2018-07-22,$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+3,EMP003,Michael,Davis,michael.davis@cysecbook.com,DevOps,135000,345-67-8901,2020-01-10,$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+4,EMP004,Emily,Wilson,emily.wilson@cysecbook.com,Marketing,95000,456-78-9012,2021-05-03,$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+5,EMP005,David,Brown,david.brown@cysecbook.com,Engineering,130000,567-89-0123,2017-11-28,$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+6,EMP006,Jessica,Taylor,jessica.taylor@cysecbook.com,HR,85000,678-90-1234,2019-08-14,$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+7,EMP007,James,Anderson,james.anderson@cysecbook.com,Security,155000,789-01-2345,2016-02-20,$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+8,EMP008,Amanda,Thomas,amanda.thomas@cysecbook.com,Finance,110000,890-12-3456,2020-09-01,$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+9,EMP009,Robert,Jackson,robert.jackson@cysecbook.com,Engineering,140000,901-23-4567,2018-04-17,$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+10,EMP010,Lisa,White,lisa.white@cysecbook.com,Product,120000,012-34-5678,2021-02-08,$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy

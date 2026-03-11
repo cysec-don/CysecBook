@@ -1,0 +1,9 @@
+# Session Tokens Log
+# Active Sessions - DO NOT SHARE
+
+session_id,user_id,user_agent,ip_address,created_at,last_activity,expires_at
+sess_abc123def456,101,Mozilla/5.0 (Windows NT 10.0; Win64; x64),192.168.1.100,2024-01-15 08:00:00,2024-01-15 10:30:00,2024-01-16 08:00:00
+sess_ghi789jkl012,102,Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7),192.168.1.101,2024-01-15 09:15:00,2024-01-15 11:45:00,2024-01-16 09:15:00
+sess_mno345pqr678,103,Mozilla/5.0 (X11; Linux x86_64),192.168.1.102,2024-01-15 07:30:00,2024-01-15 12:00:00,2024-01-16 07:30:00
+sess_stu901vwx234,104,Mozilla/5.0 (iPhone; CPU iPhone OS 14_0),192.168.1.103,2024-01-15 10:00:00,2024-01-15 10:45:00,2024-01-16 10:00:00
+sess_yza567bcd890,105,Mozilla/5.0 (Android 11; Mobile),192.168.1.104,2024-01-15 11:00:00,2024-01-15 11:30:00,2024-01-16 11:00:00

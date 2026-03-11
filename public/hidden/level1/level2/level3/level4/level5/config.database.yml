@@ -1,0 +1,43 @@
+# Database Configuration
+# WARNING: This file contains sensitive credentials
+
+production:
+  host: db.cysecbook.internal
+  port: 5432
+  database: cysecbook_prod
+  username: admin_user
+  password: Sup3rS3cr3tP@ssw0rd!2024
+  ssl: true
+  pool_size: 50
+
+staging:
+  host: db-staging.cysecbook.internal
+  port: 5432
+  database: cysecbook_staging
+  username: staging_user
+  password: St@g1ngP@ss123!
+  ssl: true
+  pool_size: 20
+
+development:
+  host: localhost
+  port: 5432
+  database: cysecbook_dev
+  username: dev_user
+  password: d3v3l0pm3nt
+  ssl: false
+  pool_size: 10
+
+# Redis Configuration
+redis:
+  host: redis.cysecbook.internal
+  port: 6379
+  password: R3d1sS3cr3tK3y!
+  db: 0
+
+# API Keys
+api_keys:
+  stripe: sk_live_FAKE_STRIPE_KEY_FOR_SECURITY_TESTING
+  sendgrid: SG.xxxxxxxxxxxxxxxxxxxxxx.yyyyyyyyyyyyyyyyyyyyyyyyyyyy
+  aws_access_key: AKIAIOSFODNN7EXAMPLE
+  aws_secret_key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
